@@ -110,15 +110,33 @@ document.addEventListener('DOMContentLoaded', () => {
         // Basic validation
         if (!data.name || !data.email || !data.message) return;
 
-        // Show success state
-        const wrapper = contactForm.parentElement;
-        wrapper.innerHTML = `
-            <div class="form-success">
-                <div class="success-icon">&#10003;</div>
-                <h3>Message Sent!</h3>
-                <p>Thank you for reaching out. We'll get back to you within 24 hours.</p>
-            </div>
-        `;
+        const submitBtn = contactForm.querySelector('button[type="submit"]');
+        submitBtn.textContent = 'Sending...';
+        submitBtn.disabled = true;
+
+        // Submit to Formspree
+        fetch(contactForm.action, {
+            method: 'POST',
+            body: formData,
+            headers: { 'Accept': 'application/json' }
+        }).then(response => {
+            const wrapper = contactForm.parentElement;
+            if (response.ok) {
+                wrapper.innerHTML = `
+                    <div class="form-success">
+                        <div class="success-icon">&#10003;</div>
+                        <h3>Message Sent!</h3>
+                        <p>Thank you for reaching out. We'll get back to you within 24 hours.</p>
+                    </div>
+                `;
+            } else {
+                submitBtn.textContent = 'Send Message';
+                submitBtn.disabled = false;
+            }
+        }).catch(() => {
+            submitBtn.textContent = 'Send Message';
+            submitBtn.disabled = false;
+        });
     });
 
     // --- Active nav link highlight on scroll ---
